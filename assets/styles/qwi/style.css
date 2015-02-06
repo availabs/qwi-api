@@ -1,0 +1,97 @@
+/* Stying for the page. */
+
+html {
+	position: absolute;
+	width: 100%;
+	background-color: black;
+}
+
+body {
+	background-color: #101010;
+	position: absolute;
+	width: 90%;
+	margin: 5%;
+	overflow: hidden;
+	/*width: 1100px;*/
+}
+
+
+
+/* Styling for the chart. */
+
+.stackedBarChart {
+	background-color: green;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 1000px;
+}
+
+.axis {
+  font: 10px sans-serif;
+}
+
+text {
+	fill: white;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #FFF;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  /*display: none;*/
+}
+
+
+/* Styling for the county selector sliding sidebar. */
+
+.selectorSidebar {
+	position: absolute;
+	top: -14px;
+	right: 5px;
+	width: 100px;
+}
+
+.countySelectorList.inactive {
+	transform: translate(200px, 0px);
+	transition: all 0.5s ease-out;
+}
+
+.countySelectorList.active {
+	transform: translate(0px, 0px);
+	transition: all 0.5s ease-in;
+}
+
+.selectorButton {
+	position: absolute;
+	top: -50px;
+	right: 5px;
+	color: white;
+}
+
+.countyList {
+	list-style-type: none;
+	padding-left:0;
+}
+
+.countyListItem {
+	color: #000026;
+	background-color: #e5e5f2;
+	opacity: 0.9;
+	border-style: solid;
+	border: 1px solid black;
+	display: inline-block;
+	width: 100px;
+
+}
+
+.selectedCounty {
+	color: #e5e5f2;
+	background-color: #000026;	
+	opacity: 0.9;
+}
+
