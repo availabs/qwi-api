@@ -1,6 +1,6 @@
 // http://strongriley.github.io/d3/tutorial/bar-2.html
 
-function overlappedBarChart() {
+function groupedBarChart() {
 
 
   var margin = {top: 20, right: 20, bottom: 30, left: 60},
@@ -65,9 +65,9 @@ function overlappedBarChart() {
               } else if (a.quarter > b.quarter) {
                  return 1;
               } else if (a.total_employment < b.total_employment) { 
-                return 1;
-              } else if (a.total_employment > b.total_employment){
                 return -1;
+              } else if (a.total_employment > b.total_employment){
+                return 1;
               } else {
                 return 0;
               }
@@ -89,21 +89,36 @@ function overlappedBarChart() {
 
           y.domain(d3.extent(data, function(d) { return d.total_employment; }));
 
-          barWidth = width / ((years.length + 1) * 4) * 0.85; // get some separation between quarterly figure bars.
+          barWidth = width / ((years.length + 1) * (4 * counties.length)); // get some separation between quarterly figure bars.
         })();
         
 
         (function updateChart() {
           var chart = d3.select(domElem).select(".chart"),
-              bars  = chart.selectAll(".bar").data(data);
+              bars  = chart.selectAll(".bar").data(data),
+              prevQuarter,
+              i;
 
           chart.select('.x.axis').call(xAxis);
           chart.select('.y.axis').call(yAxis);
 
+          function computeX(d) {
+            if (d.quarter === prevQuarter) {
+              ++i;
+            } else {
+              i = 0;
+            }
+            prevQuarter = d.quarter;
+            
+            // (offset for year) + (offset of quarter) + (offset for county) + (undo centering over axis notch) 
+            return x(d.year) + ((d.quarter - 1)*(counties.length * barWidth)) + (i* barWidth) + (2 * counties.length * barWidth ); 
+          }
+
+          prevQuarter = null;
           bars.enter().append("rect")
               .attr("class", "bar")
               .style("fill", function (d) { return colors(counties.indexOf(d.county)); })
-              .attr("x", function(d)  { return x(d.year) + ((d.quarter + 1) * barWidth * 1.08); }) //FIXME: Center over axis notch
+              .attr("x", computeX)
               .attr("width", barWidth)
               .attr("y", function(d) { return y(d.total_employment); })
               .attr("height", function(d) { return height - y(d.total_employment || 0); })
@@ -145,7 +160,7 @@ function overlappedBarChart() {
           .text("Total Private Sector Employment");
   }  
 
-  chart.type = 'overlappedBarChart';
+  chart.type = 'groupedBarChart';
 
   return chart;
 };

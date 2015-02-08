@@ -1,4 +1,4 @@
-/* Stying for the page. */
+/*********** Stying for the page. ***********/
 
 html {
   position: absolute;
@@ -17,9 +17,9 @@ body {
 
 
 
-/* Styling for the chart. */
+/*********** Styling for the chart. ***********/
 
-.stackedBarChart {
+.barChart {
   background-color: green;
   position: absolute;
   top: 0px;
@@ -47,12 +47,48 @@ text {
 }
 
 
-/* Styling for the county selector sliding sidebar. */
 
-.selectorSidebar {
+/*********** Styling for the ChartTypeSelector ***********/
+
+.chartTypeSelector {
   position: absolute;
   top: -14px;
-  right: 5px;
+  left: 2px;
+  width: 100px;
+}
+
+.chartTypeSelectorList.inactive {
+  transform: translate(-250px, 0px);
+  transition: all 0.5s ease-out;
+}
+
+.chartTypeSelectorList.active {
+  transform: translate(0px, 0px);
+  transition: all 0.5s ease-in;
+}
+
+.chartTypeSelectorButton {
+  position: absolute;
+  top: -30px;
+  left: 30px;
+  color: white;
+  display: inline-block;
+  white-space: nowrap;
+  width: 20px;
+}
+
+.chartTypeSelectorListItem {
+  width: 160px;
+}
+
+
+
+/*********** Styling for the CountySelector ***********/
+
+.countySelector {
+  position: absolute;
+  top: -14px;
+  right: 3px;
   width: 100px;
 }
 
@@ -66,30 +102,39 @@ text {
   transition: all 0.5s ease-in;
 }
 
-.selectorButton {
+.countySelectorButton {
   position: absolute;
-  top: -50px;
-  right: 5px;
+  top: -30px;
+  right: 80px;
   color: white;
+  display: inline-block;
+  white-space: nowrap;
+  width: 20px;
 }
 
-.countyList {
+.countySelectorListItem {
+  width: 100px;
+}
+
+
+/*********** Stying for general selection lists. ***********/
+
+ul {
   list-style-type: none;
   padding-left:0;
 }
 
-.countyListItem {
+li {
   color: #000026;
   background-color: #e5e5f2;
   opacity: 0.9;
   border-style: solid;
   border: 1px solid black;
   display: inline-block;
-  width: 100px;
 
 }
 
-.selectedCounty {
+li.selected {
   color: #e5e5f2;
   background-color: #000026;  
   opacity: 0.9;
