@@ -1,6 +1,6 @@
 // http://strongriley.github.io/d3/tutorial/bar-2.html
 
-function groupedBarChart() {
+function overlappedBarChart() {
 
 
   var margin = {top: 20, right: 20, bottom: 30, left: 60},
@@ -36,7 +36,7 @@ function groupedBarChart() {
       .header("Content-Type", "application/json")
       .post(JSON.stringify({ 'county_ids': counties }), function(error, data) {
 
-        d3.select(domElem).selectAll('.bar').remove(); 
+        d3.select(domElem).select('.dataVizArea').selectAll('*').remove();
 
           var barWidth;
 
@@ -65,9 +65,9 @@ function groupedBarChart() {
               } else if (a.quarter > b.quarter) {
                  return 1;
               } else if (a.total_employment < b.total_employment) { 
-                return -1;
-              } else if (a.total_employment > b.total_employment){
                 return 1;
+              } else if (a.total_employment > b.total_employment){
+                return -1;
               } else {
                 return 0;
               }
@@ -89,36 +89,21 @@ function groupedBarChart() {
 
           y.domain(d3.extent(data, function(d) { return d.total_employment; }));
 
-          barWidth = width / ((years.length + 1) * (4 * counties.length)); // get some separation between quarterly figure bars.
+          barWidth = width / ((years.length + 1) * 4) * 0.85; // get some separation between quarterly figure bars.
         })();
         
 
         (function updateChart() {
           var chart = d3.select(domElem).select(".chart"),
-              bars  = chart.selectAll(".bar").data(data),
-              prevQuarter,
-              i;
+              bars  = d3.select(domElem).selectAll(".dataVizArea").selectAll(".bar").data(data);
 
           chart.select('.x.axis').call(xAxis);
           chart.select('.y.axis').call(yAxis);
 
-          function computeX(d) {
-            if (d.quarter === prevQuarter) {
-              ++i;
-            } else {
-              i = 0;
-            }
-            prevQuarter = d.quarter;
-            
-            // (offset for year) + (offset of quarter) + (offset for county) + (undo centering over axis notch) 
-            return x(d.year) + ((d.quarter - 1)*(counties.length * barWidth)) + (i* barWidth) + (2 * counties.length * barWidth ); 
-          }
-
-          prevQuarter = null;
           bars.enter().append("rect")
               .attr("class", "bar")
               .style("fill", function (d) { return colors(counties.indexOf(d.county)); })
-              .attr("x", computeX)
+              .attr("x", function(d)  { return x(d.year) + ((d.quarter + 1) * barWidth * 1.08); }) //FIXME: Center over axis notch
               .attr("width", barWidth)
               .attr("y", function(d) { return y(d.total_employment); })
               .attr("height", function(d) { return height - y(d.total_employment || 0); })
@@ -135,32 +120,35 @@ function groupedBarChart() {
   // Call on componentDidMount
   chart.init = function(domElem) {
 
-      var chart = d3.select(domElem)
-          .append('svg')
-          .attr('class', 'chartContainer')
-          .attr("width", width + margin.left + margin.right)
-          .attr("height", height + margin.top + margin.bottom) 
-          .append('g')
-          .attr('class', 'chart')
-          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    var chart = d3.select(domElem)
+        .append('svg')
+        .attr('class', 'chartContainer')
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom) 
+        .append('g')
+        .attr('class', 'chart')
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-      chart.append("g")
-          .attr("class", "x axis")
-          .attr("transform", "translate(0," + height + ")")
-          .call(xAxis);
+    chart.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
 
-      chart.append("g")
-          .attr("class", "y axis")
-          .call(yAxis)
-        .append("text")
-          .attr("transform", "rotate(-90)")
-          .attr("y", 6)
-          .attr("dy", ".71em")
-          .style("text-anchor", "end")
-          .text("Total Private Sector Employment");
+    chart.append("g")
+        .attr("class", "y axis")
+        .call(yAxis)
+      .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", ".71em")
+        .style("text-anchor", "end")
+        .text("Total Private Sector Employment");
+
+    chart.append("g")
+        .attr("class", "dataVizArea");
   }  
 
-  chart.type = 'groupedBarChart';
+  chart.type = 'overlappedBarChart';
 
   return chart;
 };

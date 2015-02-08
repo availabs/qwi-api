@@ -2,7 +2,7 @@
 // Wraps the specific BarChart types, allowing dynamic redraw on user chart selection.
 // Towards goal of a base BarChart with swappable components.
 
-var BaseBarChart = React.createClass ({
+var BaseChart = React.createClass ({
 
   // Depends on a default chart type chosen by BaseChart's owner.
   componentDidMount: function() {

@@ -1,6 +1,6 @@
 // http://strongriley.github.io/d3/tutorial/bar-2.html
 
-function stackedBarChart() {
+function groupedBarChart() {
 
 
   var margin = {top: 20, right: 20, bottom: 30, left: 60},
@@ -36,7 +36,7 @@ function stackedBarChart() {
       .header("Content-Type", "application/json")
       .post(JSON.stringify({ 'county_ids': counties }), function(error, data) {
 
-        d3.select(domElem).selectAll('.bar').remove(); 
+        d3.select(domElem).select('.dataVizArea').selectAll('*').remove();
 
           var barWidth;
 
@@ -78,24 +78,8 @@ function stackedBarChart() {
       
 
         (function updateScaling() {
-          var years,
-              quarterTotals = {},
-              maxQuarterlyTotal = 0;
-
-          data.forEach(function (d) {
-            var key = d.year + '_' + d.quarter;
-            if(quarterTotals[key]) {
-              quarterTotals[key] += d.total_employment;
-            } else {
-              quarterTotals[key] = d.total_employment;
-            }
-
-            if (quarterTotals[key] > maxQuarterlyTotal) {
-              maxQuarterlyTotal = quarterTotals[key];
-            }
-          });
-
-       
+          var years;
+      
           // To handle cases of gaps in years. ??? A better way: https://github.com/mbostock/d3/wiki/Time-Scales ???
           years = d3.extent(data, function (d) { return d.year; });
           for (i = years[0] + 1, j = years[1]; i < j; ++i) {
@@ -103,39 +87,41 @@ function stackedBarChart() {
           }
           x.domain(years.sort());
 
-          y.domain([0, maxQuarterlyTotal]);
+          y.domain(d3.extent(data, function(d) { return d.total_employment; }));
 
-          barWidth = width / ((years.length + 1) * 4) * 0.85; // get some separation between quarterly figure bars.
+          barWidth = width / ((years.length + 1) * (4 * counties.length)); // get some separation between quarterly figure bars.
         })();
         
 
         (function updateChart() {
-          var chart        = d3.select(domElem).select(".chart"),
-              bars         = chart.selectAll(".bar").data(data),
-              prevQuarter  = null,
-              previousTotal,
-              temp;
+          var chart = d3.select(domElem).select(".chart"),
+              bars  = d3.select(domElem).selectAll(".dataVizArea").selectAll(".bar").data(data),
+              prevQuarter,
+              i;
 
           chart.select('.x.axis').call(xAxis);
           chart.select('.y.axis').call(yAxis);
 
+          function computeX(d) {
+            if (d.quarter === prevQuarter) {
+              ++i;
+            } else {
+              i = 0;
+            }
+            prevQuarter = d.quarter;
+            
+            // (offset for year) + (offset of quarter) + (offset for county) + (undo centering over axis notch) 
+            return x(d.year) + ((d.quarter - 1)*(counties.length * barWidth)) + (i* barWidth) + (2 * counties.length * barWidth ); 
+          }
+
+          prevQuarter = null;
           bars.enter().append("rect")
               .attr("class", "bar")
               .style("fill", function (d) { return colors(counties.indexOf(d.county)); })
-              .attr("x", function(d)  { return x(d.year) + ((d.quarter + 1) * barWidth * 1.08); }) //FIXME: Center over axis notch
+              .attr("x", computeX)
               .attr("width", barWidth)
-              .attr("y", function(d) { 
-                if (prevQuarter !== d.quarter) {  // Assumes sorted order.
-                  previousTotal = 0;  
-                }
-                prevQuarter = d.quarter;
-
-                temp = previousTotal;
-                previousTotal = previousTotal + d.total_employment;
-
-                return y(previousTotal); 
-              })
-              .attr("height", function(d) { return height - y(d.total_employment || 0) })
+              .attr("y", function(d) { return y(d.total_employment); })
+              .attr("height", function(d) { return height - y(d.total_employment || 0); })
               .append("svg:title")
               .text(function(d) { return d.county + ': ' + d.total_employment; });
 
@@ -172,10 +158,12 @@ function stackedBarChart() {
           .attr("dy", ".71em")
           .style("text-anchor", "end")
           .text("Total Private Sector Employment");
+
+      chart.append("g")
+          .attr("class", "dataVizArea");
   }  
 
-
-  chart.type = 'stackedBarChart';
+  chart.type = 'groupedBarChart';
 
   return chart;
 };

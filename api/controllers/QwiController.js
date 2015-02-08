@@ -21,7 +21,7 @@ module.exports = {
 
     counties = req.body['county_ids']
                     .reduce(function(pre, cur, i) { 
-                      return pre += (i ? ", '" : "'") + cur + "'"; } , '');
+                      return pre += (i ? ", '" : "'") + +cur + "'"; } , '');
 
     var sql = '\n' +
       "SELECT year, quarter, geography AS county, SUM(emp) AS total_employment \n" + //TODO: ??? Rename geography to county ???

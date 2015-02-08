@@ -3,12 +3,13 @@ var QuarterlyTotalEmploymentMain = React.createClass ({
   chartTypes : { 
     'overlappedBarChart' : overlappedBarChart,
     'stackedBarChart'    : stackedBarChart,
-    'groupedBarChart'    : groupedBarChart
+    'groupedBarChart'    : groupedBarChart,
+    'voronoiLineChart'   : voronoiLineChart
   },
 
   // Note: chartType is an instance of a specific chartType.
   getInitialState: function () {
-    return { selectedCounties: [], chartType: overlappedBarChart() };  
+    return { selectedCounties: [], chartType: voronoiLineChart() };  
   },
 
 
@@ -36,7 +37,7 @@ var QuarterlyTotalEmploymentMain = React.createClass ({
 
     return (
       <div>
-        <BaseBarChart className='barChart' chart={this.state.chartType} selectedCounties={ this.state.selectedCounties } />
+        <BaseChart className='baseChart' chart={this.state.chartType} selectedCounties={ this.state.selectedCounties } />
         <div className='chartTypeSelector'>
           <ChartTypeSelector 
             notifySelectionChange={ this.handleChartTypeChange } 

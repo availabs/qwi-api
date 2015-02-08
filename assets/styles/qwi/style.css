@@ -15,11 +15,15 @@ body {
   /*width: 1100px;*/
 }
 
+svg {
+  font: 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
 
 
 /*********** Styling for the chart. ***********/
 
-.barChart {
+.baseChart {
   background-color: green;
   position: absolute;
   top: 0px;
@@ -116,6 +120,31 @@ text {
   width: 100px;
 }
 
+
+
+/*********** Stying for general selection lists. ***********/
+.counties {
+  fill: none;
+  stroke: #FFF;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  stroke-width: 1.5px;
+}
+
+.counties--hover {
+  stroke: #FFF;
+}
+
+
+.voronoi path {
+  fill: none;
+  pointer-events: all;
+}
+
+.voronoi--show path {
+  stroke: red;
+  stroke-opacity: .2;
+}
 
 /*********** Stying for general selection lists. ***********/
 
