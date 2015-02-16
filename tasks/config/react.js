@@ -17,5 +17,5 @@ module.exports = function(grunt) {
     }
   });
 
-	grunt.loadNpmTasks('grunt-react');
+  grunt.loadNpmTasks('grunt-react');
 };

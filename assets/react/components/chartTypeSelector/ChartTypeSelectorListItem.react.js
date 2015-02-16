@@ -9,8 +9,6 @@ var ChartTypeSelectorListItem = React.createClass ({
   handleClick: function () {
     if (this.props.selected === true) return;
 
-    console.log("Yo!");
-
     this.props.notifySelectionChange(this.props.chartType);
   },
 

@@ -10,8 +10,6 @@ var ChartTypeSelectorList = React.createClass ({
   generateListItems: function () {
     var props = this.props;
 
-    console.log(props.currentChartType);
-
     return this.props.chartTypes.map(function(chartType, i) {
 
       return (<ChartTypeSelectorListItem
