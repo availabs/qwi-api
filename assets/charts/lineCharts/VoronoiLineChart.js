@@ -1,4 +1,10 @@
 // http://bl.ocks.org/mbostock/8033015
+'use strict';
+
+
+var d3 = require('d3');
+
+
 
 function voronoiLineChart() {
 
@@ -198,3 +204,5 @@ function voronoiLineChart() {
 
   return chart;
 }
+
+module.exports = voronoiLineChart;

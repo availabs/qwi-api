@@ -1,5 +1,12 @@
-var CountySelectorList = React.createClass ({
+'use strict';
 
+var React                  = require('react'),
+    CountySelectorListItem = require('./CountySelectorListItem.react.js'),
+    fipsCodes              = require('../../../data/nys_fips');
+
+
+
+var CountySelectorList = React.createClass ({
 
   generateListItems: function () {
     var props = this.props;
@@ -18,11 +25,13 @@ var CountySelectorList = React.createClass ({
     });
   },
  
-   
   render: function () {
     var classes = 'countySelectorList ' +  (this.props.active ? 'active' : 'inactive');
 
     return ( <ul className={classes}>{this.generateListItems()}</ul>);
   }
-
 });
+
+
+
+module.exports = CountySelectorList;

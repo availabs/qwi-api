@@ -1,12 +1,18 @@
-var ChartTypeSelectorListItem = React.createClass ({
+'use strict';
 
+var React = require('react');
+
+
+
+var ChartTypeSelectorListItem = React.createClass ({
     
   handleClick: function () {
     if (this.props.selected === true) return;
 
+    console.log("Yo!");
+
     this.props.notifySelectionChange(this.props.chartType);
   },
-
 
   render: function () {
     var name = this.props.chartType.replace( /([A-Z])/g, " $1" );
@@ -19,5 +25,8 @@ var ChartTypeSelectorListItem = React.createClass ({
       </li>
     );
   }
-
 });
+
+
+
+module.exports = ChartTypeSelectorListItem;

@@ -1,6 +1,12 @@
 // http://strongriley.github.io/d3/tutorial/bar-2.html
+'use strict';
 
-function stackedBarChart() {
+
+var d3 = require('d3');
+
+
+
+function overlappedBarChart() {
 
 
   var margin = {top: 20, right: 20, bottom: 30, left: 60},
@@ -65,9 +71,9 @@ function stackedBarChart() {
               } else if (a.quarter > b.quarter) {
                  return 1;
               } else if (a.total_employment < b.total_employment) { 
-                return -1;
-              } else if (a.total_employment > b.total_employment){
                 return 1;
+              } else if (a.total_employment > b.total_employment){
+                return -1;
               } else {
                 return 0;
               }
@@ -79,23 +85,8 @@ function stackedBarChart() {
 
         (function updateScaling() {
           var years,
-              quarterTotals = {},
-              maxQuarterlyTotal = 0;
-
-          data.forEach(function (d) {
-            var key = d.year + '_' + d.quarter;
-            if(quarterTotals[key]) {
-              quarterTotals[key] += d.total_employment;
-            } else {
-              quarterTotals[key] = d.total_employment;
-            }
-
-            if (quarterTotals[key] > maxQuarterlyTotal) {
-              maxQuarterlyTotal = quarterTotals[key];
-            }
-          });
-
-       
+              i, j;
+      
           // To handle cases of gaps in years. ??? A better way: https://github.com/mbostock/d3/wiki/Time-Scales ???
           years = d3.extent(data, function (d) { return d.year; });
           for (i = years[0] + 1, j = years[1]; i < j; ++i) {
@@ -103,7 +94,7 @@ function stackedBarChart() {
           }
           x.domain(years.sort());
 
-          y.domain([0, maxQuarterlyTotal]);
+          y.domain(d3.extent(data, function(d) { return d.total_employment; }));
 
           barWidth = width / ((years.length + 1) * 4) * 0.85; // get some separation between quarterly figure bars.
         })();
@@ -111,10 +102,7 @@ function stackedBarChart() {
 
         (function updateChart() {
           var chart = d3.select(domElem).select(".chart"),
-              bars  = d3.select(domElem).selectAll(".dataVizArea").selectAll(".bar").data(data),
-              prevQuarter  = null,
-              previousTotal,
-              temp;
+              bars  = d3.select(domElem).selectAll(".dataVizArea").selectAll(".bar").data(data);
 
           chart.select('.x.axis').call(xAxis);
           chart.select('.y.axis').call(yAxis);
@@ -124,18 +112,8 @@ function stackedBarChart() {
               .style("fill", function (d) { return colors(counties.indexOf(d.county)); })
               .attr("x", function(d)  { return x(d.year) + ((d.quarter + 1) * barWidth * 1.08); }) //FIXME: Center over axis notch
               .attr("width", barWidth)
-              .attr("y", function(d) { 
-                if (prevQuarter !== d.quarter) {  // Assumes sorted order.
-                  previousTotal = 0;  
-                }
-                prevQuarter = d.quarter;
-
-                temp = previousTotal;
-                previousTotal = previousTotal + d.total_employment;
-
-                return y(previousTotal); 
-              })
-              .attr("height", function(d) { return height - y(d.total_employment || 0) })
+              .attr("y", function(d) { return y(d.total_employment); })
+              .attr("height", function(d) { return height - y(d.total_employment || 0); })
               .append("svg:title")
               .text(function(d) { return d.county + ': ' + d.total_employment; });
 
@@ -149,38 +127,39 @@ function stackedBarChart() {
   // Call on componentDidMount
   chart.init = function(domElem) {
 
-      var chart = d3.select(domElem)
-          .append('svg')
-          .attr('class', 'chartContainer')
-          .attr("width", width + margin.left + margin.right)
-          .attr("height", height + margin.top + margin.bottom) 
-          .append('g')
-          .attr('class', 'chart')
-          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    var chart = d3.select(domElem)
+        .append('svg')
+        .attr('class', 'chartContainer')
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom) 
+        .append('g')
+        .attr('class', 'chart')
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-      chart.append("g")
-          .attr("class", "x axis")
-          .attr("transform", "translate(0," + height + ")")
-          .call(xAxis);
+    chart.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
 
-      chart.append("g")
-          .attr("class", "y axis")
-          .call(yAxis)
-        .append("text")
-          .attr("transform", "rotate(-90)")
-          .attr("y", 6)
-          .attr("dy", ".71em")
-          .style("text-anchor", "end")
-          .text("Total Private Sector Employment");
+    chart.append("g")
+        .attr("class", "y axis")
+        .call(yAxis)
+      .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", ".71em")
+        .style("text-anchor", "end")
+        .text("Total Private Sector Employment");
 
-      chart.append("g")
-          .attr("class", "dataVizArea");
+    chart.append("g")
+        .attr("class", "dataVizArea");
   }  
 
-
-  chart.type = 'stackedBarChart';
+  chart.type = 'overlappedBarChart';
 
   return chart;
 };
+
+module.exports = overlappedBarChart;
 
 

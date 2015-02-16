@@ -1,4 +1,4 @@
-var fipsCodes = {
+module.exports = {
 
   'Albany'       : '36001',
   'Allegany'     : '36003',

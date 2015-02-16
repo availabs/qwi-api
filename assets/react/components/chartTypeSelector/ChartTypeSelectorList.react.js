@@ -1,8 +1,16 @@
-var ChartTypeSelectorList = React.createClass ({
+'use strict';
 
+var React = require('react'),
+    ChartTypeSelectorListItem = require('./ChartTypeSelectorListItem.react');
+
+
+
+var ChartTypeSelectorList = React.createClass ({
 
   generateListItems: function () {
     var props = this.props;
+
+    console.log(props.currentChartType);
 
     return this.props.chartTypes.map(function(chartType, i) {
 
@@ -15,7 +23,6 @@ var ChartTypeSelectorList = React.createClass ({
     });
   },
  
-   
   render: function () {
     var classes = 'chartTypeSelectorList ' +  (this.props.active ? 'active' : 'inactive');
 
@@ -23,3 +30,6 @@ var ChartTypeSelectorList = React.createClass ({
   }
 
 });
+
+
+module.exports = ChartTypeSelectorList;

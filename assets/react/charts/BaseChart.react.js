@@ -1,8 +1,10 @@
-// Container for BarChart. 
-// Wraps the specific BarChart types, allowing dynamic redraw on user chart selection.
-// Towards goal of a base BarChart with swappable components.
+'use strict';
 
-var BaseChart = React.createClass ({
+var React = require('react');
+
+
+
+var BaseChart = exports.BarChart = React.createClass ({
 
   // Depends on a default chart type chosen by BaseChart's owner.
   componentDidMount: function() {
@@ -45,3 +47,7 @@ var BaseChart = React.createClass ({
   render : function() { return ( <div/> ); }
 
 });
+
+
+
+module.exports = BaseChart;

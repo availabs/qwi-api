@@ -1,16 +1,20 @@
-var ChartTypeSelector = React.createClass ({
+'use strict';
 
+var React = require('react'),
+    ChartTypeSelectorList = require('./ChartTypeSelectorList.react');
+
+
+
+var ChartTypeSelector = React.createClass ({
 
   getInitialState: function () {
     return { active: false };
   },
 
-
   toggleSelectionList: function () {
     this.setState({ active: !this.state.active });
   },
    
-
   render: function () {
     return ( 
       <div className='chartTypeSelector'>
@@ -24,8 +28,8 @@ var ChartTypeSelector = React.createClass ({
       </div> 
     );
   }
-
 });
 
 
 
+module.exports = ChartTypeSelector;

@@ -1,10 +1,15 @@
+'use strict';
+
+var React = require('react'),
+    CountySelectorListItem = require('./CountySelectorListItem.react.js');
+
+
+
 var CountySelectorListItem = React.createClass ({
 
-    
   handleClick: function () {
     this.props.notifySelectionChange(this.props.fipsCode);
   },
-
 
   render: function () {
     return (
@@ -18,5 +23,8 @@ var CountySelectorListItem = React.createClass ({
       </li>
     );
   }
-
 });
+
+
+
+module.exports = CountySelectorListItem;

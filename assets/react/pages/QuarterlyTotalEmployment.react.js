@@ -1,15 +1,24 @@
+'use strict';
+
+var React             = require('react'),
+    Charts            = require('../../charts'),
+    BaseChart         = require('../charts/BaseChart.react'),
+    ChartTypeSelector = require('../components').ChartTypeSelector,
+    CountySelector    = require('../components').CountySelector;
+
+
 var QuarterlyTotalEmploymentMain = React.createClass ({
 
   chartTypes : { 
-    'overlappedBarChart' : overlappedBarChart,
-    'stackedBarChart'    : stackedBarChart,
-    'groupedBarChart'    : groupedBarChart,
-    'voronoiLineChart'   : voronoiLineChart
+    'overlappedBarChart' : Charts.OverlappedBarChart,
+    'stackedBarChart'    : Charts.StackedBarChart,
+    'groupedBarChart'    : Charts.GroupedBarChart,
+    'voronoiLineChart'   : Charts.VoronoiLineChart
   },
 
   // Note: chartType is an instance of a specific chartType.
   getInitialState: function () {
-    return { selectedCounties: [], chartType: voronoiLineChart() };  
+    return { selectedCounties: [], chartType: this.chartTypes.voronoiLineChart() };  
   },
 
 

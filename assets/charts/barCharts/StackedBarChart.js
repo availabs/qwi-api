@@ -1,6 +1,12 @@
 // http://strongriley.github.io/d3/tutorial/bar-2.html
+'use strict';
 
-function groupedBarChart() {
+
+var d3 = require('d3');
+
+
+
+function stackedBarChart() {
 
 
   var margin = {top: 20, right: 20, bottom: 30, left: 60},
@@ -78,8 +84,25 @@ function groupedBarChart() {
       
 
         (function updateScaling() {
-          var years;
-      
+          var years,
+              quarterTotals = {},
+              maxQuarterlyTotal = 0,
+              i, j;
+
+          data.forEach(function (d) {
+            var key = d.year + '_' + d.quarter;
+            if(quarterTotals[key]) {
+              quarterTotals[key] += d.total_employment;
+            } else {
+              quarterTotals[key] = d.total_employment;
+            }
+
+            if (quarterTotals[key] > maxQuarterlyTotal) {
+              maxQuarterlyTotal = quarterTotals[key];
+            }
+          });
+
+       
           // To handle cases of gaps in years. ??? A better way: https://github.com/mbostock/d3/wiki/Time-Scales ???
           years = d3.extent(data, function (d) { return d.year; });
           for (i = years[0] + 1, j = years[1]; i < j; ++i) {
@@ -87,41 +110,39 @@ function groupedBarChart() {
           }
           x.domain(years.sort());
 
-          y.domain(d3.extent(data, function(d) { return d.total_employment; }));
+          y.domain([0, maxQuarterlyTotal]);
 
-          barWidth = width / ((years.length + 1) * (4 * counties.length)); // get some separation between quarterly figure bars.
+          barWidth = width / ((years.length + 1) * 4) * 0.85; // get some separation between quarterly figure bars.
         })();
         
 
         (function updateChart() {
           var chart = d3.select(domElem).select(".chart"),
               bars  = d3.select(domElem).selectAll(".dataVizArea").selectAll(".bar").data(data),
-              prevQuarter,
-              i;
+              prevQuarter  = null,
+              previousTotal,
+              temp;
 
           chart.select('.x.axis').call(xAxis);
           chart.select('.y.axis').call(yAxis);
 
-          function computeX(d) {
-            if (d.quarter === prevQuarter) {
-              ++i;
-            } else {
-              i = 0;
-            }
-            prevQuarter = d.quarter;
-            
-            // (offset for year) + (offset of quarter) + (offset for county) + (undo centering over axis notch) 
-            return x(d.year) + ((d.quarter - 1)*(counties.length * barWidth)) + (i* barWidth) + (2 * counties.length * barWidth ); 
-          }
-
-          prevQuarter = null;
           bars.enter().append("rect")
               .attr("class", "bar")
               .style("fill", function (d) { return colors(counties.indexOf(d.county)); })
-              .attr("x", computeX)
+              .attr("x", function(d)  { return x(d.year) + ((d.quarter + 1) * barWidth * 1.08); }) //FIXME: Center over axis notch
               .attr("width", barWidth)
-              .attr("y", function(d) { return y(d.total_employment); })
-              .attr("height", function(d) { return height - y(d.total_employment || 0); })
+              .attr("y", function(d) { 
+                if (prevQuarter !== d.quarter) {  // Assumes sorted order.
+                  previousTotal = 0;  
+                }
+                prevQuarter = d.quarter;
+
+                temp = previousTotal;
+                previousTotal = previousTotal + d.total_employment;
+
+                return y(previousTotal); 
+              })
+              .attr("height", function(d) { return height - y(d.total_employment || 0) })
               .append("svg:title")
               .text(function(d) { return d.county + ': ' + d.total_employment; });
 
@@ -163,9 +184,10 @@ function groupedBarChart() {
           .attr("class", "dataVizArea");
   }  
 
-  chart.type = 'groupedBarChart';
+
+  chart.type = 'stackedBarChart';
 
   return chart;
 };
 
-
+module.exports = stackedBarChart;

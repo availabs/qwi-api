@@ -1,16 +1,20 @@
-var CountySelector = React.createClass ( {
+'use strict';
 
+var React = require('react'),
+    CountySelectorList = require('./CountySelectorList.react.js');
+
+
+
+var CountySelector = React.createClass ( {
 
   getInitialState: function () {
     return { active: false };
   },
 
-
   toggleSelectionList: function () {
     this.setState({ active: !this.state.active });
   },
    
-
   render: function () {
     return ( 
       <div className='countySelector'>
@@ -23,5 +27,8 @@ var CountySelector = React.createClass ( {
       </div> 
     );
   }
-
 });
+
+
+
+module.exports = CountySelector;
