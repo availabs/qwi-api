@@ -1,0 +1,3 @@
+Left off trying to set default store values.
+
+Need to look up the standard way to do this.

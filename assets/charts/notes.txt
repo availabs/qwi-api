@@ -1,0 +1,5 @@
+In the graph functions, instead of passing in a DOM Element, return a DOM element.
+
+The Graphs store holds this element.
+
+The React GraphContainer queries for the DOM element and stores it in its state.

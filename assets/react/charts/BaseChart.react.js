@@ -1,47 +1,31 @@
 'use strict';
 
-var React = require('react');
+var React     = require('react'),
+    DataStore = require('../../flux/stores/DataStore');
 
 
+var BaseChart = React.createClass ({
 
-var BaseChart = exports.BarChart = React.createClass ({
+  getInitialState: function() {
+    return { data: [] };
+  },
 
-  // Depends on a default chart type chosen by BaseChart's owner.
   componentDidMount: function() {
-    this.props.chart.init(this.getDOMNode());
+    DataStore.addChangeListener(this._onChange);
+    this.props.renderer.init(this.getDOMNode());
   },
 
   shouldComponentUpdate: function (nextProps) {
-    var nextCounties,
-        prevCounties,
-        that = this,
-        i;
-
-    // ??? Equality of functions ???
-    if (nextProps.chart.type !== this.props.chart.type) {
-      setTimeout(function() { nextProps.chart(that.getDOMNode(), nextProps.selectedCounties); }, 0); // FIXME: Redundant
-      return false;
+    if (this.props.renderer !== nextProps.renderer) {
+      nextProps.renderer(this.getDOMNode(), this.state.data);
     }
-
-    // Did the selected counties change ?
-    if (nextProps.selectedCounties.length === this.props.selectedCounties.length) {
-
-      nextCounties = nextProps.selectedCounties.slice();
-      prevCounties = this.props.selectedCounties.slice();
-  
-      nextCounties.sort();
-      prevCounties.sort();
-
-      for (i = 0; (i < nextCounties.length) && (nextCounties[i] === prevCounties[i]); ++i) { ; }
-
-      if (i === nextCounties.length) {
-        return false;
-      }
-    } 
-
-    setTimeout(function() { nextProps.chart(that.getDOMNode(), nextProps.selectedCounties); }, 0); // ??? Necessary?
-
     return false;
+  },
+
+  _onChange: function() {
+    var theData = DataStore.getData(this.props.chartID);
+    this.setState({ data: theData });
+    this.props.renderer(this.getDOMNode(), theData);
   },
 
   render : function() { return ( <div/> ); }
@@ -49,5 +33,5 @@ var BaseChart = exports.BarChart = React.createClass ({
 });
 
 
-
 module.exports = BaseChart;
+

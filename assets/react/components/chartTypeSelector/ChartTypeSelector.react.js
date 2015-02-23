@@ -4,7 +4,6 @@ var React = require('react'),
     ChartTypeSelectorList = require('./ChartTypeSelectorList.react');
 
 
-
 var ChartTypeSelector = React.createClass ({
 
   getInitialState: function () {
@@ -20,10 +19,10 @@ var ChartTypeSelector = React.createClass ({
       <div className='chartTypeSelector'>
         <h4 className='chartTypeSelectorButton' onClick={this.toggleSelectionList}>Chart Type</h4>
         <ChartTypeSelectorList 
-          notifySelectionChange={this.props.notifySelectionChange} 
+          setChartType={this.props.setChartType} 
           active={this.state.active} 
           currentChartType={this.props.currentChartType}
-          chartTypes={this.props.chartTypes}
+          renderers={this.props.renderers}
         />
       </div> 
     );

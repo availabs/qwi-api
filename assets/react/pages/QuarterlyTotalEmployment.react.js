@@ -6,66 +6,85 @@ var React             = require('react'),
     ChartTypeSelector = require('../components').ChartTypeSelector,
     CountySelector    = require('../components').CountySelector;
 
+var ChartStore    = require('../../flux/stores/ChartStore'),
+    ActionCreator = require('../../flux/actions/ActionCreator');
+
+var FlakeId    = require('flake-idgen'),
+    flakeIdGen = new FlakeId();
+
+
+var renderers = { 
+    'overlappedBarChart' : Charts.OverlappedBarChart(),
+    'stackedBarChart'    : Charts.StackedBarChart(),
+    'groupedBarChart'    : Charts.GroupedBarChart(),
+    'voronoiLineChart'   : Charts.VoronoiLineChart()
+};
+
 
 var QuarterlyTotalEmploymentMain = React.createClass ({
 
-  chartTypes : { 
-    'overlappedBarChart' : Charts.OverlappedBarChart,
-    'stackedBarChart'    : Charts.StackedBarChart,
-    'groupedBarChart'    : Charts.GroupedBarChart,
-    'voronoiLineChart'   : Charts.VoronoiLineChart
-  },
-
-  // Note: chartType is an instance of a specific chartType.
   getInitialState: function () {
-    return { selectedCounties: [], chartType: this.chartTypes.voronoiLineChart() };  
+    return { chartID: flakeIdGen.next(), renderer: renderers.voronoiLineChart, selectedCounties: [] };  
   },
 
+  componentWillMount: function () {
+    ActionCreator.setChartType(this.state.chartID, this.state.renderer.type);
+  },
 
-  handleCountySelectionChange: function (countyFIPSCode) {
+  componentDidMount: function () {
+    ChartStore.addChangeListener(this._onChange);
+  },
 
-    var newSelectedCounties = this.state.selectedCounties.slice(),
-        index = newSelectedCounties.indexOf(countyFIPSCode);
+  componentDidUnmount: function () {
+    ChartStore.removeChangeListener(this._onChange);
+  },
 
-    if (index === -1) {
-      newSelectedCounties.push(countyFIPSCode);
-    } else {
-      newSelectedCounties.splice(index, 1);
-    }
-
-    this.setState( { selectedCounties: newSelectedCounties });
+  _onChange: function () {
+    this.setState({ renderer: renderers[ChartStore.getChartType(this.state.chartID)], //FIXME
+                    selectedCounties: ChartStore.getSelectedCounties(this.state.chartID)
+                  });
   },
   
-  // ??? Cache the types once instantiated ???
-  handleChartTypeChange: function (chartType) {
-    this.setState( { chartType: this.chartTypes[chartType]() });
+  setChartType: function (renderer) {
+    ActionCreator.setChartType(this.state.chartID, renderer);
+  },
+  
+  selectCounty: function (countyID) {
+    ActionCreator.selectCounty(this.state.chartID, countyID)
+  },
+
+  deselectCounty: function (countyID) {
+    ActionCreator.deselectCounty(this.state.chartID, countyID)
   },
   
 
   render : function () {
-
     return (
       <div>
-        <BaseChart className='baseChart' chart={this.state.chartType} selectedCounties={ this.state.selectedCounties } />
+        <BaseChart  className='baseChart' 
+            chartID          = { this.state.chartID } 
+            renderer         = { this.state.renderer } 
+            selectedCounties = { this.state.selectedCounties } 
+        />
+
         <div className='chartTypeSelector'>
           <ChartTypeSelector 
-            notifySelectionChange={ this.handleChartTypeChange } 
-            currentChartType={ this.state.chartType.type }
-            chartTypes={ Object.keys(this.chartTypes) }
+            blah= {console.log(this)}
+            setChartType     = { this.setChartType } 
+            currentChartType = { this.state.renderer.type }
+            renderers        = { Object.keys(renderers) } 
           />
         </div>
+
         <div className='countySelector'>
           <CountySelector 
-            selectedCounties={this.state.selectedCounties} 
-            notifySelectionChange={ this.handleCountySelectionChange } 
-          />
+            selectCounty     = { this.selectCounty } 
+            deselectCounty   = { this.deselectCounty } 
+            selectedCounties = { this.state.selectedCounties } />
         </div>
       </div> 
     );
   }
-
 })
 
 React.render (<QuarterlyTotalEmploymentMain />, document.getElementById('container'));
-
-

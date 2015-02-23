@@ -31,125 +31,118 @@ function stackedBarChart() {
   var colors = d3.scale.category10(); //FIXME: Make Dynamic based on num of selected counties.
 
 
-  // Call on shouldComponentUpdate
-  function chart (domElem, counties) {
+  function chart (domElem, data) {
 
-    counties = counties.map(function (county) {
-      return +(county.trim());
-    });
+    d3.select(domElem).select('.dataVizArea').selectAll('*').remove();
 
-    d3.json("quarterly_total_employment/")
-      .header("Content-Type", "application/json")
-      .post(JSON.stringify({ 'county_ids': counties }), function(error, data) {
+      var counties = d3.set(),
+          barWidth;
 
-        d3.select(domElem).select('.dataVizArea').selectAll('*').remove();
+      data = (function cleanData (rawData) {
+          rawData = rawData.filter(function (d) { 
+          if (!(d.year && d.quarter && d.county)) { return false }  
 
-          var barWidth;
+          d.county = counties.add(+d.county);
+          d.quarter = +d.quarter;
 
-          data = (function cleanData (rawData) {
-              rawData = rawData.filter(function (d) { 
-              if (!(d.year && d.quarter && d.county)) { return false }  
+          // ??? How to handle the missing data ????
+          d.total_employment = d.total_employment ? +d.total_employment : 0;
 
-              d.county = +(d.county.trim());
-              d.year = +(d.year.trim());
-              d.quarter = +(d.quarter.trim()); 
+          return true;
+        })
+          
+        // Convert to array of unique values.
+        counties = counties.values();
+  
 
-              // ??? How to handle the missing rawData ????
-              d.total_employment = d.total_employment ? +(d.total_employment.trim()) : 0;
-
-              return true;
-            })
-
-            // This sorting order makes the bar overlapping work.
-            rawData.sort(function (a, b) {
-              if (a.year < b.year) {
-                return -1;
-              } else if (a.year > b.year) {
-                return 1;
-              } else if (a.quarter < b.quarter) {
-                return -1;  
-              } else if (a.quarter > b.quarter) {
-                 return 1;
-              } else if (a.total_employment < b.total_employment) { 
-                return -1;
-              } else if (a.total_employment > b.total_employment){
-                return 1;
-              } else {
-                return 0;
-              }
-            });
-
-            return rawData;
-          })(data);
-      
-
-        (function updateScaling() {
-          var years,
-              quarterTotals = {},
-              maxQuarterlyTotal = 0,
-              i, j;
-
-          data.forEach(function (d) {
-            var key = d.year + '_' + d.quarter;
-            if(quarterTotals[key]) {
-              quarterTotals[key] += d.total_employment;
-            } else {
-              quarterTotals[key] = d.total_employment;
-            }
-
-            if (quarterTotals[key] > maxQuarterlyTotal) {
-              maxQuarterlyTotal = quarterTotals[key];
-            }
-          });
-
-       
-          // To handle cases of gaps in years. ??? A better way: https://github.com/mbostock/d3/wiki/Time-Scales ???
-          years = d3.extent(data, function (d) { return d.year; });
-          for (i = years[0] + 1, j = years[1]; i < j; ++i) {
-            years.push(i);
+        // This sorting order makes the bar overlapping work.
+        rawData.sort(function (a, b) {
+          if (a.year < b.year) {
+            return -1;
+          } else if (a.year > b.year) {
+            return 1;
+          } else if (a.quarter < b.quarter) {
+            return -1;  
+          } else if (a.quarter > b.quarter) {
+             return 1;
+          } else if (a.total_employment < b.total_employment) { 
+            return -1;
+          } else if (a.total_employment > b.total_employment){
+            return 1;
+          } else {
+            return 0;
           }
-          x.domain(years.sort());
+        });
 
-          y.domain([0, maxQuarterlyTotal]);
+        return rawData;
+      })(data);
 
-          barWidth = width / ((years.length + 1) * 4) * 0.85; // get some separation between quarterly figure bars.
-        })();
-        
 
-        (function updateChart() {
-          var chart = d3.select(domElem).select(".chart"),
-              bars  = d3.select(domElem).selectAll(".dataVizArea").selectAll(".bar").data(data),
-              prevQuarter  = null,
-              previousTotal,
-              temp;
+    (function updateScaling() {
+      var years,
+          quarterTotals = {},
+          maxQuarterlyTotal = 0,
+          i, j;
 
-          chart.select('.x.axis').call(xAxis);
-          chart.select('.y.axis').call(yAxis);
+      data.forEach(function (d) {
+        var key = d.year + '_' + d.quarter;
+        if(quarterTotals[key]) {
+          quarterTotals[key] += d.total_employment;
+        } else {
+          quarterTotals[key] = d.total_employment;
+        }
 
-          bars.enter().append("rect")
-              .attr("class", "bar")
-              .style("fill", function (d) { return colors(counties.indexOf(d.county)); })
-              .attr("x", function(d)  { return x(d.year) + ((d.quarter + 1) * barWidth * 1.08); }) //FIXME: Center over axis notch
-              .attr("width", barWidth)
-              .attr("y", function(d) { 
-                if (prevQuarter !== d.quarter) {  // Assumes sorted order.
-                  previousTotal = 0;  
-                }
-                prevQuarter = d.quarter;
+        if (quarterTotals[key] > maxQuarterlyTotal) {
+          maxQuarterlyTotal = quarterTotals[key];
+        }
+      });
 
-                temp = previousTotal;
-                previousTotal = previousTotal + d.total_employment;
+   
+      // To handle cases of gaps in years. ??? A better way: https://github.com/mbostock/d3/wiki/Time-Scales ???
+      years = d3.extent(data, function (d) { return d.year; });
+      for (i = years[0] + 1, j = years[1]; i < j; ++i) {
+        years.push(i);
+      }
+      x.domain(years.sort());
 
-                return y(previousTotal); 
-              })
-              .attr("height", function(d) { return height - y(d.total_employment || 0) })
-              .append("svg:title")
-              .text(function(d) { return d.county + ': ' + d.total_employment; });
+      y.domain([0, maxQuarterlyTotal]);
 
-          bars.exit().remove();
-        })();
+      barWidth = width / ((years.length + 1) * 4) * 0.85; // get some separation between quarterly figure bars.
+    })();
+    
 
-    });
+    (function updateChart() {
+      var chart = d3.select(domElem).select(".chart"),
+          bars  = d3.select(domElem).selectAll(".dataVizArea").selectAll(".bar").data(data),
+          prevQuarter  = null,
+          previousTotal,
+          temp;
+
+      chart.select('.x.axis').call(xAxis);
+      chart.select('.y.axis').call(yAxis);
+
+      bars.enter().append("rect")
+          .attr("class", "bar")
+          .style("fill", function (d) { return colors(counties.indexOf(d.county)); })
+          .attr("x", function(d)  { return x(d.year) + ((d.quarter + 1) * barWidth * 1.08); }) //FIXME: Change to timescale.
+          .attr("width", barWidth)
+          .attr("y", function(d) { 
+            if (prevQuarter !== d.quarter) {  // Assumes sorted order.
+              previousTotal = 0;  
+            }
+            prevQuarter = d.quarter;
+
+            temp = previousTotal;
+            previousTotal = previousTotal + d.total_employment;
+
+            return y(previousTotal); 
+          })
+          .attr("height", function(d) { return height - y(d.total_employment || 0) })
+          .append("svg:title")
+          .text(function(d) { return d.county + ': ' + d.total_employment; });
+
+      bars.exit().remove();
+    })();
   };
   
 

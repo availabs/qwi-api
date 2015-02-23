@@ -1,22 +1,22 @@
 'use strict';
 
+
 var React = require('react'),
     CountySelectorListItem = require('./CountySelectorListItem.react.js');
-
 
 
 var CountySelectorListItem = React.createClass ({
 
   handleClick: function () {
-    this.props.notifySelectionChange(this.props.fipsCode);
+    this.props.toggleCounty(this.props.fipsCode);
   },
 
   render: function () {
     return (
-      <li onClick={this.handleClick} 
-          className={'countySelectorListItem ' + (this.props.selected ? 'selected' : '')} 
-          key={this.props.key} 
-          fipsCode={this.props.fipsCode}> 
+      <li className = { 'countySelectorListItem ' + (this.props.selected ? 'selected' : '') }
+          onClick   = { this.handleClick } 
+          key       = { this.props.key } 
+          fipsCode  = { this.props.fipsCode } > 
 
             {this.props.countyName}
 

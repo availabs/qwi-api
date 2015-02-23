@@ -4,25 +4,25 @@ var React = require('react'),
     ChartTypeSelectorListItem = require('./ChartTypeSelectorListItem.react');
 
 
-
 var ChartTypeSelectorList = React.createClass ({
 
   generateListItems: function () {
     var props = this.props;
 
-    return this.props.chartTypes.map(function(chartType, i) {
+    // Build the list.
+    return this.props.renderers.map(function(renderer, i) {
 
       return (<ChartTypeSelectorListItem
                 key={i}
-                notifySelectionChange={props.notifySelectionChange} 
-                chartType={chartType}
-                selected={(props.currentChartType === chartType) ? true : false }
+                setChartType={function() { props.setChartType.call(null, renderer); }} 
+                renderer={renderer}
+                selected={(props.currentChartType === renderer) ? true : false }
               />);
     });
   },
  
   render: function () {
-    var classes = 'chartTypeSelectorList ' +  (this.props.active ? 'active' : 'inactive');
+    var classes = 'rendererSelectorList ' +  (this.props.active ? 'active' : 'inactive');
 
     return ( <ul className={classes}>{this.generateListItems()}</ul>);
   }
